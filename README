@@ -11,3 +11,15 @@ How to use in your Qt application
 Developed by Wim Leers (http://wimleers.com/).
 However, the idea comes from the very helpful user in the #Qt IRC channel with 
 the nickname cbreak (http://the-color-black.net). Thanks again! :)
+
+Test case
+---------
+A test case has been provided: https://gist.github.com/708621. Note that this
+particular test case may only be reproducible on Mac OS X 10.6.5 (it has been
+reproduced with both Qt 4.6 and Qt 4.7.1).
+The output will look something like this:
+  Without QCachingLocale:
+  4839 ms were necessary for parsing the date 1000 times.
+
+  With QCachingLocale:
+  23 ms were necessary for parsing the date 1000 times.
