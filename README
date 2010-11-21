@@ -1,0 +1,13 @@
+How to use in your Qt application
+---------------------------------
+
+1) Add the QCachingLocale.h file to your project, and add it to your .pro
+   file.
+2) Create a QCachingLocale instance as soon as possible, preferably in the
+   main() function. This will automatically install this object as the system
+   locale and remove any earlier installed system locales.
+   All your QSystemLocale::query() calls will now be cached by QCachingLocale!
+
+Developed by Wim Leers (http://wimleers.com/).
+However, the idea comes from the very helpful user in the #Qt IRC channel with 
+the nickname cbreak (http://the-color-black.net). Thanks again! :)
