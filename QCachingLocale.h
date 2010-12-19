@@ -4,11 +4,12 @@
 #include <QSystemLocale>
 #include <QVariant>
 #include <QMutex>
+#include <QMutexLocker>
 
 class QCachingLocale : public QSystemLocale {
 public:
     virtual QVariant query(QueryType type, QVariant in) const {
-        int inAsInt;
+        static int inAsInt;
         switch(type) {
             case QSystemLocale::LanguageId:
             case QSystemLocale::CountryId:
@@ -26,11 +27,9 @@ public:
             case QSystemLocale::AMText:
             case QSystemLocale::PMText:
                 // in = empty
-                if (!this->cacheInNone.contains(type)) {
-                    QCachingLocale::inNoneMutex.lock();
+                QMutexLocker(&this->inNoneMutex);
+                if (!this->cacheInNone.contains(type))
                     this->cacheInNone[type] = QSystemLocale::query(type, in);
-                    QCachingLocale::inNoneMutex.unlock();
-                }
                 return this->cacheInNone[type];
             case QSystemLocale::TimeFormatShort:
             case QSystemLocale::DayNameLong:
@@ -38,12 +37,10 @@ public:
             case QSystemLocale::MonthNameLong:
             case QSystemLocale::MonthNameShort:
                 // in = int
+                QMutexLocker(&this->inIntMutex);
                 inAsInt = in.toInt();
-                if (!this->cacheInInt.contains(type) || !this->cacheInInt[type].contains(inAsInt)) {
-                    QCachingLocale::inIntMutex.lock();
+                if (!this->cacheInInt.contains(type) || !this->cacheInInt[type].contains(inAsInt))
                     this->cacheInInt[type][inAsInt] = QSystemLocale::query(type, in);
-                    QCachingLocale::inIntMutex.unlock();
-                }
                 return this->cacheInInt[type][inAsInt];
             case QSystemLocale::DateToStringLong:
             case QSystemLocale::DateToStringShort:
@@ -55,12 +52,10 @@ public:
             case QSystemLocale::DateTimeToStringShort:
                 // in = QDateTime
                 // QDate, QTime, QDateTime can be converted to unix timestamps.
+                QMutexLocker(&this->inIntMutex);
                 inAsInt = in.toDateTime().toTime_t();
-                if (!this->cacheInInt.contains(type) || !this->cacheInInt[type].contains(inAsInt)) {
-                    QCachingLocale::inIntMutex.lock();
+                if (!this->cacheInInt.contains(type) || !this->cacheInInt[type].contains(inAsInt))
                     this->cacheInInt[type][inAsInt] = QSystemLocale::query(type, in);
-                    QCachingLocale::inIntMutex.unlock();
-                }
                 return this->cacheInInt[type][inAsInt];
             default:
                 // In Qt 4.7, the above cases should cover *all* cases. This
