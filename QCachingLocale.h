@@ -5,6 +5,7 @@
 #include <QVariant>
 #include <QMutex>
 #include <QMutexLocker>
+#include <QDateTime>
 
 class QCachingLocale : public QSystemLocale {
 public:
